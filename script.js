@@ -3,6 +3,7 @@ let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let capturedImage = document.getElementById("capturedImage");
 let switchCameraBtn = document.getElementById("switchCamera");
+let mirrorEffectBtn = document.getElementById("mirrorEffect");
 let captureBtn = document.getElementById("capture");
 let saveBtn = document.getElementById("save");
 let toggleFlashBtn = document.getElementById("toggleFlash");
@@ -15,6 +16,7 @@ let currentStream = null;
 let track = null;
 let torchSupported = false;
 let isNegative = false;
+let isMirrored = false;
 
 // 📷 Start Camera
 async function startCamera() {
@@ -44,11 +46,26 @@ switchCameraBtn.addEventListener("click", () => {
     startCamera();
 });
 
+// 🪞 Toggle Mirror Effect
+mirrorEffectBtn.addEventListener("click", () => {
+    isMirrored = !isMirrored;
+    video.style.transform = isMirrored ? "scaleX(-1)" : "scaleX(1)";
+    mirrorEffectBtn.classList.toggle("active");
+});
+
 // 📸 Take Picture
 captureBtn.addEventListener("click", () => {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+    ctx.save();
+    
+    if (isMirrored) {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+    }
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     if (isNegative) {
         let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -67,54 +84,13 @@ captureBtn.addEventListener("click", () => {
     saveBtn.style.display = "inline-block";
 });
 
-// 💾 Save Picture
-saveBtn.addEventListener("click", () => {
-    let link = document.createElement("a");
-    link.href = capturedImage.src;
-    link.download = "captured_image.png";
-    link.click();
-});
-
-// 🌓 Toggle Negative Filter
-toggleNegativeBtn.addEventListener("click", () => {
-    isNegative = !isNegative;
-    toggleNegativeBtn.classList.toggle("active");
-});
-
-// 🔎 Zoom In
-zoomInBtn.addEventListener("click", () => {
-    if (track) {
-        let capabilities = track.getCapabilities();
-        let settings = track.getSettings();
-        if (capabilities.zoom) {
-            let newZoom = Math.min(settings.zoom + 1, capabilities.zoom.max);
-            track.applyConstraints({ advanced: [{ zoom: newZoom }] });
-        }
-    }
-});
-
-// 🔍 Zoom Out
-zoomOutBtn.addEventListener("click", () => {
-    if (track) {
-        let capabilities = track.getCapabilities();
-        let settings = track.getSettings();
-        if (capabilities.zoom) {
-            let newZoom = Math.max(settings.zoom - 1, capabilities.zoom.min);
-            track.applyConstraints({ advanced: [{ zoom: newZoom }] });
-        }
-    }
-});
-
-// ⚡ Flashlight Toggle
-toggleFlashBtn.addEventListener("click", () => {
-    if (torchSupported) {
-        let torchState = !track.getSettings().torch;
-        track.applyConstraints({ advanced: [{ torch: torchState }] });
-        toggleFlashBtn.classList.toggle("active");
-    } else {
-        alert("Flashlight not supported on this device!");
-    }
+// 🎨 Change Background
+document.querySelectorAll(".bg-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        document.body.style.background = button.dataset.bg === "none" ? "linear-gradient(45deg, #ff7eb3, #ff758c)" : button.dataset.bg;
+    });
 });
 
 // 🚀 Start Camera on Load
 startCamera();
+
