@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background: #f4f4f4;
+    background: linear-gradient(45deg, #ff7eb3, #ff758c);
     margin: 0;
     padding: 0;
 }
@@ -15,10 +15,19 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
+.camera-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
 video, img {
     width: 100%;
     border-radius: 10px;
     margin-bottom: 10px;
+    transform: scaleX(1);
+    transition: transform 0.3s ease;
 }
 
 .controls {
@@ -46,3 +55,33 @@ button:hover {
 button.active {
     background: #ff5722;
 }
+
+.background-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.bg-btn {
+    margin: 5px;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.bg-btn[data-bg="blue"] {
+    background: blue;
+    color: white;
+}
+
+.bg-btn[data-bg="green"] {
+    background: green;
+    color: white;
+}
+
+.bg-btn[data-bg="purple"] {
+    background: purple;
+    color: white;
+}
+
